@@ -1,0 +1,109 @@
+# Default values for the TenderDuty chart.
+
+# Docker image settings
+image:
+  repository: ghcr.io/blockpane/tenderduty
+  tag: latest
+  pullPolicy: IfNotPresent
+
+# Replica count
+replicaCount: 1
+
+# Service definitions:
+service:
+  # By default, we create one Service with two ports:
+  # - The dashboard port (listen_port)
+  # - The prometheus metrics port (prometheus_listen_port)
+  type: ClusterIP
+  ports:
+    - name: dashboard
+      port: 8888
+      targetPort: 8888
+    - name: prometheus
+      port: 28686
+      targetPort: 28686
+
+# Example resource requests/limits
+resources:
+  requests:
+    cpu: 50m
+    memory: 128Mi
+  limits:
+    cpu: 200m
+    memory: 256Mi
+
+# A single YAML string holding your TenderDuty config.
+# Adapt the sample below to your environment.
+config: |
+  # controls whether the dashboard is enabled.
+  enable_dashboard: yes
+  listen_port: 8888
+  hide_logs: no
+  node_down_alert_minutes: 3
+  node_down_alert_severity: critical
+  prometheus_enabled: yes
+  prometheus_listen_port: 28686
+
+  pagerduty:
+    enabled: no
+    api_key: aaaaaaaaaaaabbbbbbbbbbbbbcccccccccccc
+    default_severity: alert
+
+  discord:
+    enabled: no
+    webhook: https://discord.com/api/webhooks/999999999999999999/zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz
+
+  telegram:
+    enabled: no
+    api_key: "5555555555:AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+    channel: "-666666666"
+
+  slack:
+    enabled: no
+    webhook: https://hooks.slack.com/services/AAAAAAAAAAAAAAAAAAAAAAA/bbbbbbbbbbbbbbbbbbbbbbbb
+
+  healthcheck:
+    enabled: no
+    ping_url: https://hc-ping.com/aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee
+    ping_rate: 60
+
+  chains:
+    "Osmosis":
+      chain_id: osmosis-1
+      valoper_address: osmovaloper1xxxxxxx...
+      public_fallback: no
+      alerts:
+        stalled_enabled: yes
+        stalled_minutes: 10
+        consecutive_enabled: yes
+        consecutive_missed: 5
+        consecutive_priority: critical
+        percentage_enabled: no
+        percentage_missed: 10
+        percentage_priority: warning
+        alert_if_inactive: yes
+        alert_if_no_servers: yes
+        pagerduty:
+          enabled: yes
+          api_key: ""
+        discord:
+          enabled: yes
+          webhook: ""
+        telegram:
+          enabled: yes
+          api_key: ""
+          channel: ""
+        slack:
+          enabled: yes
+          webhook: ""
+
+      nodes:
+      - url: tcp://localhost:26657
+        alert_if_down: yes
+      - url: https://some-other-node:443
+        alert_if_down: no
+
+# Node selectors, tolerations, affinity for advanced scheduling:
+nodeSelector: {}
+tolerations: []
+affinity: {}
